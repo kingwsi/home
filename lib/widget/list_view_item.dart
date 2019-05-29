@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:home/entity/sensor.dart';
+import 'package:date_format/date_format.dart';
 
 class ListViewItem extends StatelessWidget {
   final Feed feed;
@@ -24,7 +25,7 @@ class ListViewItem extends StatelessWidget {
       subtitle: Row(
         children: <Widget>[
           Padding(
-            child: Text(feed.created_at,
+            child: Text(formatDate(DateTime.parse(feed.created_at), [yyyy, '-', mm, '-', dd, ' ', hh,':',MM,':',ss]),
                 style: TextStyle(color: Colors.white, fontSize: 10.0)),
             padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
           )

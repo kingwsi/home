@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:home/entity/sensor.dart';
+import 'package:home/widget/bottom_sheet.dart';
 import 'package:home/widget/list_view_item.dart';
 import 'package:home/widget/sensor_tick.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
@@ -23,55 +24,89 @@ class _SensorHumidityPageState extends State<SensorHumidityPage> {
 
   @override
   void initState() {
-    _getData();
+    _getData(
+        "https://api.thingspeak.com/channels/784382/feeds.json?timezone=Asia%2FShanghai");
   }
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return ListView(
-      children: <Widget>[
-        Center(
-          child: Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: Text(
-              "湿度",
-              style: TextStyle(fontSize: 16, color: Colors.white),
-            ),
-          ),
-        ),
-        Center(
-          child: Container(
-              constraints: new BoxConstraints.expand(
-                height: 200.0,
+    return sensorData == null
+        ? SpinKitSpinningCircle(
+            color: Colors.white,
+          )
+        : ListView(
+            children: <Widget>[
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: ListTile(
+                      title: Text(
+                        "湿度",
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                      trailing: IconButton(
+                        onPressed: () {
+                          showModalBottomSheet(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    new ListTile(
+                                      leading: new Icon(Icons.photo_camera),
+                                      title: new Text("Camera"),
+                                      onTap: () async {
+                                        _switchDayChart();
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    new ListTile(
+                                      leading: new Icon(Icons.photo_library),
+                                      title: new Text("Gallery"),
+                                      onTap: () async {
+                                        Navigator.pop(context);
+                                        _switchWeekDayChart();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              });
+                        },
+                        icon: Icon(Icons.menu),
+                      )),
+                ),
               ),
-              child: sensorData == null
-                  ? SpinKitThreeBounce(
-                      color: Colors.white,
-                    )
-                  : SensorTick(
+              Center(
+                child: Container(
+                    constraints: new BoxConstraints.expand(
+                      height: MediaQuery.of(context).size.height * 0.3,
+                    ),
+                    child: SensorTick(
                       data: _createSampleData(),
                       unit: "%",
                     )),
-        ),
-        Center(
-          child: Container(
-              constraints: new BoxConstraints.expand(
-                height: 200.0,
               ),
-              child: sensorData == null
-                  ? SpinKitThreeBounce(
-                      color: Colors.white,
-                    )
-                  : ListView.builder(
-                      controller: _scrollController,
-                      itemBuilder: (BuildContext context, int index) {
-                        return ListViewItem(feed: sensorData.feeds[index]);
-                      },
-                      itemCount: sensorData.feeds.length)),
-        ),
-      ],
-    );
+              // list
+              Center(
+                child: Container(
+                    constraints: new BoxConstraints.expand(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                    ),
+                    child: sensorData == null
+                        ? SpinKitThreeBounce(
+                            color: Colors.white,
+                          )
+                        : ListView.builder(
+                            controller: _scrollController,
+                            itemBuilder: (BuildContext context, int index) {
+                              return ListViewItem(
+                                  feed: sensorData.feeds[index]);
+                            },
+                            itemCount: sensorData.feeds.length)),
+              ),
+            ],
+          );
   }
 
   List<charts.Series<Feed, DateTime>> _createSampleData() {
@@ -86,11 +121,10 @@ class _SensorHumidityPageState extends State<SensorHumidityPage> {
     ];
   }
 
-  _getData() async {
+  _getData(url) async {
     Dio dio = new Dio();
     try {
-      var response = await dio.get<String>(
-          "https://api.thingspeak.com/channels/784382/feeds.json?timezone=Asia%2FShanghai");
+      var response = await dio.get<String>(url);
       if (response.statusCode == 200) {
         print("请求成功，响应码${response.statusCode}");
         SensorData sensor = SensorData.fromJson(json.decode(response.data));
@@ -103,5 +137,14 @@ class _SensorHumidityPageState extends State<SensorHumidityPage> {
     } on DioError catch (e) {
       print("请求错误！");
     }
+  }
+
+  _switchDayChart() {
+    _getData(
+        "https://api.thingspeak.com/channels/784382/feeds.json?api_key=HLV9U3YT83F0HJ9T&average=1440&round=2&timezone=Asia%2FShanghai");
+  }
+
+  _switchWeekDayChart() {
+    _getData("https://api.thingspeak.com/channels/784382/feeds.json?api_key=HLV9U3YT83F0HJ9T&days=7&average=1440&round=2&timezone=Asia%2FShanghai");
   }
 }

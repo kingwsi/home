@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:home/test/hero_animation.dart';
+import 'package:home/views/condition_weather_page.dart';
 import 'package:home/views/hour_weather_page.dart';
 import 'package:home/views/sensor_humidity_page.dart';
 import 'package:home/views/sensor_temperature_page.dart';
@@ -23,6 +25,8 @@ class Home extends StatefulWidget {
 
 class _HomePageState extends State<Home> with TickerProviderStateMixin {
   var _pageList = [
+    new HeroAnimation(),
+    new ConditionWeatherPage(),
     new SensorTemperaturePage(),
     new SensorHumidityPage(),
     new HourWeatherPage()
@@ -61,7 +65,7 @@ class _HomePageState extends State<Home> with TickerProviderStateMixin {
                     end: const Alignment(0.0, 0.6),
                     colors: [
                       Color(0xFF50409A),
-                      backgroundColor,
+                      Colors.blue,
                     ]),
               ),
               child: _pageList[index],

@@ -25,7 +25,7 @@ class DetailDialog extends Dialog {
                 .size
                 .height * 0.3,
             child: new Opacity(
-                opacity: 0.6,
+                opacity: 0.9,
                 child: Container(
                   decoration: ShapeDecoration(
                     color: const Color(0xffffffff),
